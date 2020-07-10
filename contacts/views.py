@@ -1,9 +1,27 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from .models import Contact
-from .forms import ContactForm
+from .models import Contact, Note
+from .forms import ContactForm, NoteForm
 
 
 # Create your views here.
+def list_contacts(request):
+    contacts = Contact.objects.all()
+    return render(request, "contacts/list_contacts.html",
+                  {"contacts": contacts})
+
+
+def add_contact(request):
+    if request.method == 'GET':
+        form = ContactForm()
+    else:
+        form = ContactForm(data=request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect(to='list_contacts')
+
+    return render(request, "contacts/add_contact.html", {"form": form})
+
+
 def list_contacts(request):
     contacts = Contact.objects.all()
     return render(request, "contacts/list_contacts.html",
@@ -46,3 +64,30 @@ def delete_contact(request, pk):
 
     return render(request, "contacts/delete_contact.html",
                   {"contact": contact})
+
+
+def contact_detail(request, pk):
+    contact = get_object_or_404(Contact, pk=pk)
+    return render(request, "contacts/view_contacts.html",{"contact":contact})
+
+def add_note(request,pk):
+    if request.method == 'POST':
+        form = NoteForm(request.POST)
+        if form.is_valid():
+            new_note = form.save(commit=False)
+            new_note.contact_id = pk
+            new_note.save()
+            return redirect(to='view_contacts',pk=pk)
+    else:
+        form = NoteForm()
+    return render(request, 'contacts/notes.html', {'form': form})
+
+
+# def delete_note(request, pk):
+#     note = get_object_or_404(Note, pk=pk)
+#     if request.method == 'POST':
+#         note.delete()
+#         return redirect(to='list_contacts')
+
+#     return render(request, "contacts/delete_notes.html",
+#                   {"note": note})

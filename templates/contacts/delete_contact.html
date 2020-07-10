@@ -4,7 +4,7 @@
 <h1>Delete Contact</h1>
 
 <div>
-  <form action="{% url 'delete_contact' pk=contact.pk %}" method="POST">
+  <form action="{% url 'delete_note' pk=contact.pk %}" method="POST">
     {% csrf_token %}
     <p>Are you sure you want to delete {{ contact.name }}?</p>
     <div>
